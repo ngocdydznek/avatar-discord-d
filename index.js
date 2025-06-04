@@ -44,6 +44,26 @@ client.once('ready', () => {
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
+  // 👉 Lệnh !say: bot nói thay và xoá tin nhắn gốc
+  if (message.content.startsWith('!say')) {
+    const sayMessage = message.content.slice(4).trim();
+
+    if (message.deletable) {
+      try {
+        await message.delete();
+      } catch (err) {
+        console.error('Không thể xoá tin nhắn:', err);
+      }
+    }
+
+    if (sayMessage.length > 0) {
+      message.channel.send(sayMessage);
+    } else {
+      message.channel.send('❌ Bạn chưa nhập nội dung để bot nói!');
+    }
+    return;
+  }
+
   const args = message.content.trim().split(/\s+/);
   const command = args[0].toLowerCase();
   const aliases = ['!av', '!avt', '!avatar'];
@@ -69,7 +89,6 @@ client.on('messageCreate', async (message) => {
 
     const serverAvatar = member?.avatarURL({ dynamic: true, size: 4096 });
 
-    // Info thêm
     const createdAt = `<t:${Math.floor(user.createdTimestamp / 1000)}:R>`;
     const joinedAt = member?.joinedAt
       ? `<t:${Math.floor(member.joinedAt.getTime() / 1000)}:R>`
@@ -94,7 +113,7 @@ client.on('messageCreate', async (message) => {
       .setColor(0x8e44ad);
 
     const bannerBtn = new ButtonBuilder()
-      .setCustomId(`getBanner_${userId}`)
+      .setCustomId(`getBanner_${user.id}`)
       .setLabel('📸 Xem Banner')
       .setStyle(ButtonStyle.Primary);
 
